@@ -40,67 +40,73 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
+var dotenv_1 = __importDefault(require("dotenv"));
 var express_1 = __importDefault(require("express"));
 var morgan_1 = __importDefault(require("morgan"));
 var cors_1 = __importDefault(require("cors"));
 var typeorm_1 = require("typeorm");
 var user_routes_1 = __importDefault(require("./routes/user.routes"));
-var User_1 = require("./entity/User");
+dotenv_1.default.config();
+var App_Port = process.env.App_Port;
 var app = express_1.default();
 // middlewares
 app.use(cors_1.default());
 app.use(morgan_1.default("dev"));
 app.use(express_1.default.json());
-var getUsers = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var users;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, typeorm_1.getRepository(User_1.User)
-                    .find()
-                    .catch(function (err) {
-                    console.log(err);
-                })];
-            case 1:
-                users = _a.sent();
-                return [2 /*return*/, users];
-        }
-    });
-}); };
+var retries = 5;
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var connection;
+    var connection, err_1, serverFunc;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, typeorm_1.createConnection()];
+            case 0:
+                if (!retries) return [3 /*break*/, 6];
+                _a.label = 1;
             case 1:
+                _a.trys.push([1, 3, , 5]);
+                return [4 /*yield*/, typeorm_1.createConnection()];
+            case 2:
                 connection = _a.sent();
                 connection
                     .synchronize()
                     .then(function (_) { return __awaiter(void 0, void 0, void 0, function () {
                     return __generator(this, function (_a) {
-                        app.listen(3232, function () {
-                            console.log("listening on port 3232");
-                        });
-                        app.get("/sue", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-                            var result;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0: return [4 /*yield*/, getUsers().catch(function (err) {
-                                            console.log(err);
-                                        })];
-                                    case 1:
-                                        result = _a.sent();
-                                        res.json(result);
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        app.use(user_routes_1.default);
-                        return [2 /*return*/];
+                        switch (_a.label) {
+                            case 0:
+                                app.listen(App_Port, function () {
+                                    console.log("listening on port " + App_Port);
+                                });
+                                return [4 /*yield*/, serverFunc()];
+                            case 1:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
                     });
                 }); })
                     .catch(function (err) {
                     console.log(err);
                 });
+                return [3 /*break*/, 6];
+            case 3:
+                err_1 = _a.sent();
+                console.log(err_1);
+                retries -= 1;
+                console.log(retries + " " + "retries left");
+                // wait for 5 seconds
+                return [4 /*yield*/, new Promise(function (res) {
+                        setTimeout(res, 5000);
+                    })];
+            case 4:
+                // wait for 5 seconds
+                _a.sent();
+                return [3 /*break*/, 5];
+            case 5: return [3 /*break*/, 0];
+            case 6:
+                serverFunc = function () { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        app.use("/users", user_routes_1.default);
+                        return [2 /*return*/];
+                    });
+                }); };
                 return [2 /*return*/];
         }
     });

@@ -41,10 +41,9 @@ var router = express_1.Router();
 var user_controller_1 = require("../controllers/user.controller");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        // const getter = await getUsers;
-        router.get("/users", user_controller_1.getUsers);
-        router.post("/users/register", user_controller_1.createUsers);
-        router.post("/users/login", user_controller_1.loginUser);
+        router.get("/", user_controller_1.getUsers);
+        router.post("/register", user_controller_1.createUsers);
+        router.post("/login", user_controller_1.loginUser);
         return [2 /*return*/];
     });
 }); })();

@@ -40,7 +40,7 @@ exports.loginUser = exports.createUsers = exports.getUsers = void 0;
 var typeorm_1 = require("typeorm");
 var User_1 = require("../entity/User");
 var bcrypt = require("bcrypt");
-exports.getUsers = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+var getUsers = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var users;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -55,16 +55,8 @@ exports.getUsers = function (req, res) { return __awaiter(void 0, void 0, void 0
         }
     });
 }); };
-// interface user {
-//   id: number;
-//   firstname: string;
-//   lastname: string;
-//   email: string;
-//   username: string;
-//   password: string;
-// }
-// type userpp = user[];
-exports.createUsers = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+exports.getUsers = getUsers;
+var createUsers = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var saltRounds, salt, hash, createUser, results, users;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -97,7 +89,8 @@ exports.createUsers = function (req, res) { return __awaiter(void 0, void 0, voi
         }
     });
 }); };
-exports.loginUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+exports.createUsers = createUsers;
+var loginUser = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var email, username, password, users, isMatch;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -121,9 +114,6 @@ exports.loginUser = function (req, res) { return __awaiter(void 0, void 0, void 
                 return [4 /*yield*/, bcrypt.compare(password, users.password)];
             case 2:
                 isMatch = _a.sent();
-                /* console.log(password);
-                console.log(users.password);
-                console.log(isMatch); */
                 if (!isMatch) {
                     return [2 /*return*/, res.status(400).json({ msg: "user credentials is incorrect" })];
                 }
@@ -132,3 +122,4 @@ exports.loginUser = function (req, res) { return __awaiter(void 0, void 0, void 
         }
     });
 }); };
+exports.loginUser = loginUser;

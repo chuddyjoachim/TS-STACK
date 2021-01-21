@@ -1,13 +1,15 @@
 import "reflect-metadata";
+import dotenv from "dotenv";
 
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import { createConnection, getRepository } from "typeorm";
+import { createConnection } from "typeorm";
 
 import userRoutes from "./routes/user.routes";
-import { User } from "./entity/User";
 
+dotenv.config();
+const App_Port = process.env.App_Port;
 const app = express();
 
 // middlewares
@@ -15,32 +17,39 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 
-const getUsers = async () => {
-  const users = await getRepository(User)
-    .find()
-    .catch((err) => {
-      console.log(err);
-    });
-  return users;
-};
+let retries = 5;
 
 (async () => {
-  const connection = await createConnection();
-  connection
-    .synchronize()
-    .then(async (_) => {
-      app.listen(3232, () => {
-        console.log("listening on port 3232");
-      });
-      app.get("/sue", async (req, res) => {
-        const result = await getUsers().catch((err) => {
+  //db conn retry logic
+  while (retries) {
+    try {
+      const connection = await createConnection();
+      connection
+        .synchronize()
+        .then(async (_) => {
+          app.listen(App_Port, () => {
+            console.log("listening on port " + App_Port);
+          });
+          await serverFunc();
+        })
+        .catch((err) => {
           console.log(err);
         });
-        res.json(result);
-      });
-      app.use(userRoutes);
-    })
-    .catch((err) => {
+      break;
+    } catch (err) {
       console.log(err);
-    });
+      retries -= 1;
+      console.log(retries + " " + "retries left");
+
+      // wait for 5 seconds
+      await new Promise((res) => {
+        setTimeout(res, 5000);
+      });
+    }
+  }
+
+  // other logic \\
+  const serverFunc = async () => {
+    app.use("/users", userRoutes);
+  };
 })();

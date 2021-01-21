@@ -14,26 +14,11 @@ export const getUsers = async (
     });
   return res.json(users);
 };
-// interface user {
-//   id: number;
-
-//   firstname: string;
-
-//   lastname: string;
-
-//   email: string;
-
-//   username: string;
-
-//   password: string;
-// }
-// type userpp = user[];
 
 export const createUsers = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  //   init bycrypt
   const saltRounds = 10;
   const salt = bcrypt.genSaltSync(saltRounds);
 
@@ -75,23 +60,18 @@ export const loginUser = async (
     .catch((err) => {
       console.log(err);
     });
-    if(!users){
-      return res.status(400).json({msg: "user does not exist"})
-    }
+  if (!users) {
+    return res.status(400).json({ msg: "user does not exist" });
+  }
 
   if (users) {
     const isMatch = await bcrypt.compare(password, users.password);
 
-    /* console.log(password);
-    console.log(users.password);
-    console.log(isMatch); */
-
-    if(!isMatch){
-      return res.status(400).json({msg: "user credentials is incorrect"})
+    if (!isMatch) {
+      return res.status(400).json({ msg: "user credentials is incorrect" });
     }
-    
-    
-    return res.json({email: users.email, username: users.username});
+
+    return res.json({ email: users.email, username: users.username });
   }
 
   return res.json(users);

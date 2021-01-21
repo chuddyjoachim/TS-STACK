@@ -8,10 +8,9 @@ import {
 } from "../controllers/user.controller";
 
 (async () => {
-  // const getter = await getUsers;
-  router.get("/users", getUsers);
-  router.post("/users/register", createUsers);
-  router.post("/users/login", loginUser);
+  router.get("/", getUsers);
+  router.post("/register", createUsers);
+  router.post("/login", loginUser);
 })();
 
 export default router;
