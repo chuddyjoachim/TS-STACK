@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 
 import express from "express";
 import morgan from "morgan";
@@ -26,13 +26,13 @@ let retries = 5;
       const connection = await createConnection();
       connection
         .synchronize()
-        .then(async (_) => {
+        .then(async _ => {
           app.listen(App_Port, () => {
             console.log("listening on port " + App_Port);
           });
           await serverFunc();
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
       break;
@@ -42,7 +42,7 @@ let retries = 5;
       console.log(retries + " " + "retries left");
 
       // wait for 5 seconds
-      await new Promise((res) => {
+      await new Promise(res => {
         setTimeout(res, 5000);
       });
     }

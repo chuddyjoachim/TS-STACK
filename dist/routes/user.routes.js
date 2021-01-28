@@ -37,6 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
+var auth_1 = require("../middleware/auth");
 var router = express_1.Router();
 var user_controller_1 = require("../controllers/user.controller");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -44,6 +45,7 @@ var user_controller_1 = require("../controllers/user.controller");
         router.get("/", user_controller_1.getUsers);
         router.post("/register", user_controller_1.createUsers);
         router.post("/login", user_controller_1.loginUser);
+        router.delete("/delete", auth_1.auth, user_controller_1.deleteUser);
         return [2 /*return*/];
     });
 }); })();
