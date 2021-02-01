@@ -7,5 +7,6 @@
   "database": "testtypeorm",
   "entities": ["dist/entity/**/*.js"],
   "migrations": ["dist/migration/**/*.js"],
-  "syncronize": true
+  "syncronize": true,
+  "logginh": false
 }
