@@ -1,15 +1,16 @@
-FROM node:alpine
+FROM node:14-alpine
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY ./package.json ./
+COPY ./yarn.lock ./
 
-RUN npm install
+RUN yarn install
 
 COPY . .
 
-ENV App_Port=8080 JWT_SECRET=',VR+6eA)A!%7wL<sd;wU"Cs4J*#{p@q/Kv6_yCv/QE?699Tf)' REFRESH_TOKEN="d8784u409huuq./"
+ENV App_Port=8080 JWT_SECRET=VR+6eAA!%7wL<sd;wUCs4J*#p@q/Kv6_yCv/QE?699Tf REFRESH_TOKEN=d8784u409huuq./
 
-EXPOSE 8080
+EXPOSE 3232
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
