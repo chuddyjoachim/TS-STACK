@@ -6,6 +6,7 @@ import morgan from "morgan";
 import cors from "cors";
 import { createConnection } from "typeorm";
 import { ApolloServer } from "apollo-server-express";
+import http from "http";
 
 import userRoutes from "./routes/user.routes";
 import { buildSchema } from "type-graphql";
@@ -24,6 +25,8 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 
+const http_ = new http.Server(app);
+
 let retries = 5;
 
 (async () => {
@@ -33,13 +36,13 @@ let retries = 5;
       const connection = await createConnection();
       connection
         .synchronize()
-        .then(async _ => {
-          app.listen(App_Port, () => {
+        .then(async (_) => {
+          http_.listen(App_Port, () => {
             console.log("listening on port " + App_Port);
           });
           await serverFunc();
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
       break;
@@ -49,7 +52,7 @@ let retries = 5;
       console.log(retries + " " + "retries left");
 
       // wait for 5 seconds
-      await new Promise(res => {
+      await new Promise((res) => {
         setTimeout(res, 5000);
       });
     }
@@ -84,7 +87,7 @@ let retries = 5;
       }
 
       res.cookie("rfx", refreshToken(user), {
-        httpOnly: true
+        httpOnly: true,
       });
       return res.send({ ok: true, accessToken: createAccessToken(user) });
     });
@@ -92,9 +95,9 @@ let retries = 5;
     // apolloserver graphql
     const apolloServer = new ApolloServer({
       schema: await buildSchema({
-        resolvers: [userResolver]
+        resolvers: [userResolver],
       }),
-      context: ({ req, res }) => ({ req, res })
+      context: ({ req, res }) => ({ req, res }),
     });
 
     apolloServer.applyMiddleware({ app });

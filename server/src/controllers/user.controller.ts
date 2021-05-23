@@ -1,11 +1,13 @@
 import express, { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { User } from "../entity/User";
+import "dotenv/config";
 import * as jwt from "jsonwebtoken";
-import * as dotenv from "dotenv";
+// import * as dotenv from "dotenv";
 import * as bcrypt from "bcrypt";
+import { createAccessToken, refreshToken } from "../middleware/auth";
 
-dotenv.config();
+// dotenv.config();
 
 // get all users
 export const getUsers = async (
@@ -14,10 +16,18 @@ export const getUsers = async (
 ): Promise<Response> => {
   const users = await getRepository(User)
     .find()
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
-  return res.json(users);
+  let userProperty;
+  if (users) {
+    userProperty = users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    }));
+  }
+  return res.json(userProperty);
 };
 
 // create a user
@@ -31,7 +41,7 @@ export const createUsers = async (
 
   const users = await getRepository(User)
     .findOne({ email: req.body.email })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
   let newUser;
@@ -42,12 +52,12 @@ export const createUsers = async (
       lastname: req.body.lastname,
       email: req.body.email,
       username: req.body.username,
-      password: hash
+      password: hash,
     });
 
     const results = await getRepository(User)
       .save(createUser)
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
 
@@ -55,7 +65,7 @@ export const createUsers = async (
 
     newUser = await getRepository(User)
       .findOne({ email: req.body.email })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }
@@ -72,8 +82,8 @@ export const createUsers = async (
 
   return res.json([
     {
-      msg: `user ${username} created successfully`
-    }
+      msg: `user ${username} created successfully`,
+    },
   ]);
 };
 
@@ -85,59 +95,47 @@ export const loginUser = async (
   const email = req.body.email;
   const username = req.body.username;
   const password = req.body.password;
+  try {
+    if (!email || !password)
+      return res.status(400).json({ msg: "Not All Fields Have Been Entered" });
 
-  if (!email || !password)
-    return res.status(400).json({ msg: "Not All Fields Have Been Entered" });
-
-  const users = await getRepository(User)
-    .findOne({ email: email })
-    .catch(err => {
+    const users = await User.findOne({ where: { email } }).catch((err) => {
       console.log(err);
     });
-  if (!users) {
-    return res.status(400).json({ msg: "user does not exist" });
-  }
-
-  if (users) {
-    const isMatch = await bcrypt.compare(password, users.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ msg: "user credentials is incorrect" });
+    if (!users) {
+      return res.status(400).json({ msg: "user does not exist" });
     }
 
-    const token = jwt.sign(
-      { id: users.id },
-      process.env.JWT_SECRET ? process.env.JWT_SECRET : ""
-    );
+    if (users) {
+      const isMatch = await bcrypt.compare(password, users.password);
 
-    return res.json({
-      token: token,
-      email: users.email,
-      username: users.username
-    });
+      if (!isMatch) {
+        return res.status(400).json({ msg: "user credentials is incorrect" });
+      }
+
+      const token = jwt.sign(
+        { id: users.id },
+        process.env.JWT_SECRET ? process.env.JWT_SECRET : ""
+      );
+
+      res.cookie("rfx", refreshToken(users), { httpOnly: true });
+
+      return res.send({
+        accessToken: createAccessToken(users),
+        refreshToken: refreshToken(users),
+      });
+    }
+
+    return res.json(users);
+  } catch (err) {
+    return res.json({ msg: "login error incorrrect credentials", err: err });
   }
-
-  return res.json(users);
 };
 
 // delete users
 export const deleteUser = async (req: express.Request, res: Response) => {
   try {
-    const user = await getRepository(User)
-      .findOne({ id: req.user.id })
-      .catch(err => {
-        console.log(err);
-      });
-
-    const deletedUser = await getRepository(User)
-      .delete({ id: req.user.id })
-      .catch(err => {
-        console.log(err);
-      });
-
-    if (user) return res.send({ msg: `user ${user.username} deleted` });
-
-    if (!user) return res.status(400).json({ msg: "user not found" });
+    // find user by payload and delete by uuid
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
