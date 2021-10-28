@@ -1,16 +1,16 @@
 import "reflect-metadata";
 import "dotenv/config";
 
-import { createConnection } from "typeorm";
+import { Connection, createConnection } from "typeorm";
 import { ApolloServer } from "apollo-server-express";
 import http from "http";
 
 import { buildSchema } from "type-graphql";
 import { userResolver } from "./resolvers/userResolver";
 import app from "./app";
+import { ormConfig } from "./ormconfig";
 
 const App_Port = process.env.App_Port;
-
 const http_ = new http.Server(app);
 
 let retries = 5;
@@ -19,12 +19,17 @@ let retries = 5;
   //db conn retry logic
   while (retries) {
     try {
-      const connection = await createConnection();
+      const connection: Connection = await createConnection(ormConfig);
+      // connection.runMigrations({transaction:'all'})
       connection
         .synchronize()
         .then(async (_) => {
           http_.listen(App_Port, () => {
-            console.log("listening on port " + App_Port);
+            try {
+              return console.log("Server started.");
+            } catch (err) {
+              console.log(err);
+            }
           });
           await serverFunc();
         })
@@ -44,12 +49,13 @@ let retries = 5;
     }
   }
 
-  // other logic \\
+  /* other logic */
   const serverFunc = async () => {
     // apolloserver graphql
     const apolloServer = new ApolloServer({
       schema: await buildSchema({
         resolvers: [userResolver],
+        validate: false,
       }),
       context: ({ req, res }) => ({ req, res }),
     });
