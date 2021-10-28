@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
+// import "./index.css";
 import ApolloClient from "apollo-boost";
 import { App } from "./App";
 import { ApolloProvider } from "@apollo/react-hooks";
+import './styles/output.css'
 
 const client = new ApolloClient({
   uri: "http://localhost:9001/graphql",
