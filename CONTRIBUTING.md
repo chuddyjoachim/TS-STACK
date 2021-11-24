@@ -2,7 +2,7 @@
 
 ### Introduction
 
-- This project is built with Typescript, React, Node.js and TailwindCSS
+- This project is built with Typescript, React, Node.js and TailwindCSS, Next.js and Chackra Ui
 - Check out the existing issues for ways to contribute
 
 ### Have a new feature request or see a bug?
