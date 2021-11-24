@@ -1,0 +1,39 @@
+{
+  "name": "TS-STACK",
+  "version": "1.0.0",
+  "description": "Ts everywhere server, web and mobile",
+  "main": "index.js",
+  "repository": "https://github.com/chuddyjoachim/TS-STACK.git",
+  "author": "Chikezie Joachim <56943504+chuddyjoachim@users.noreply.github.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "server",
+      "web",
+      "next-web"
+    ],
+    "nohoist": [
+      "**"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "commitizen": "^4.2.4",
+    "conventional-changelog-cli": "^2.1.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^7.0.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog",
+      "defaultScope": "global"
+    }
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "commit": "cz",
+    "commit:signed": "cz -S"
+  }
+}
