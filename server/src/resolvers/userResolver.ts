@@ -1,11 +1,9 @@
 import "dotenv/config";
 import {
   Arg,
-  Args,
   Ctx,
   Field,
   InputType,
-  Int,
   Mutation,
   ObjectType,
   Query,
@@ -13,7 +11,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { User } from "../entity/User";
-import { compare, hash } from "bcrypt";
+import * as argon from "argon2";
 import { createAccessToken, refreshToken } from "../middleware/auth";
 import "./../context/resContext";
 import { resContext } from "./../context/resContext";
@@ -98,12 +96,12 @@ export class userResolver {
     @Arg("firstname") firstname: string,
     @Arg("lastname") lastname: string,
     @Arg("username") username: string,
-    @Ctx() { req, res }: resContext
+    @Ctx() { req }: resContext
   ): Promise<LoginResponse | Boolean> {
     let user = await User.findOne({
       where: { email: email },
     });
-    const hashedPassword = await hash(password, 12);
+    const hashedPassword = await argon.hash(password);
 
     try {
       // const user = await User.findOne({ where: { email } });
@@ -157,7 +155,7 @@ export class userResolver {
   @Mutation(() => LoginResponse)
   async login(
     @Arg("options") options: LoginInput,
-    @Ctx() { req, res }: resContext
+    @Ctx() { req }: resContext
   ): Promise<LoginResponse> {
     let user = await User.findOne({
       where: { email: options.emailOrUsername },
@@ -179,7 +177,7 @@ export class userResolver {
         };
       }
     }
-    const isPassValid = await compare(options.password, user.password);
+    const isPassValid = await argon.verify(options.password, user.password);
 
     if (!isPassValid) {
       return {

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "apollo-server-express": "^2.19.2",
-    "bcrypt": "^5.0.0",
+    "argon2": "^0.28.3",
     "connect-redis": "^6.0.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -29,7 +29,6 @@
     "typeorm": "^0.2.30"
   },
   "devDependencies": {
-    "@types/bcrypt": "^3.0.0",
     "@types/connect-redis": "^0.0.17",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.10",
