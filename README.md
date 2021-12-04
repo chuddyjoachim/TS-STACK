@@ -22,7 +22,6 @@
 | :-------------------- | :-----------------------: |
 | [server](server)      |      Node.js server       |
 | [next-web](next-web)  |   Next.js frontend        |
-| [web](web)            |     React frontend        |
 
 
 ## Prerequisite
