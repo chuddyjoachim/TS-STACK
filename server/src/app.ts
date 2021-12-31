@@ -2,7 +2,6 @@ import cors from "cors";
 import express from "express";
 import morgan from "morgan";
 import { verify } from "jsonwebtoken";
-import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes";
 import { createAccessToken, refreshToken } from "./middleware/auth";
 import { User } from "./entity/User";
@@ -18,7 +17,12 @@ const redisClient = redis.createClient();
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 
@@ -31,10 +35,10 @@ app.use(
       disableTouch: true,
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 60,// * 24 * 7 * 12
+      maxAge: 1000 * 60 * 60 * 60, // * 24 * 7 * 12
       httpOnly: true,
-      sameSite: 'lax',
-      secure: PROD
+      sameSite: "lax",
+      secure: PROD,
     },
     saveUninitialized: false,
     secret: "noe089234nf",

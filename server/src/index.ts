@@ -60,6 +60,6 @@ let retries = 5;
       context: ({ req, res }) => ({ req, res }),
     });
 
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({ app, cors: false });
   };
 })();
