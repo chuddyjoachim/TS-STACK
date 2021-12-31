@@ -17,6 +17,7 @@ import "./../context/resContext";
 import { resContext } from "./../context/resContext";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { validateEmail } from "../utils/validateemail";
 
 @ObjectType()
 class ErrorField {
@@ -93,8 +94,6 @@ export class userResolver {
   async register(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Arg("firstname") firstname: string,
-    @Arg("lastname") lastname: string,
     @Arg("username") username: string,
     @Ctx() { req }: resContext
   ): Promise<LoginResponse | Boolean> {
@@ -106,6 +105,44 @@ export class userResolver {
     try {
       // const user = await User.findOne({ where: { email } });
 
+      // check empty username field
+      if (username.length < 3) {
+        return {
+          errors: [
+            {
+              field: "username",
+              message: "Username length must be greater than 3",
+            },
+          ],
+        };
+      }
+
+      // check empty password field
+      if (password.length < 3) {
+        return {
+          errors: [
+            {
+              field: "password",
+              message: "password length must be greater than 3",
+            },
+          ],
+        };
+      }
+
+      // validate email field
+      const validEmail = validateEmail(email);
+      if (!validEmail) {
+        return {
+          errors: [
+            {
+              field: "email",
+              message: "invalid email format",
+            },
+          ],
+        };
+      }
+
+      // check if user exist
       if (user) {
         return {
           errors: [
@@ -116,10 +153,10 @@ export class userResolver {
           ],
         };
       }
+
+      // save user to db
       if (!user) {
         await User.insert({
-          firstname,
-          lastname,
           username,
           email,
           password: hashedPassword,
@@ -141,14 +178,13 @@ export class userResolver {
       where: { email: email },
     })) as User;
 
-
     // Set session cookie for registered user and auto log in
     req.session.userId = user.id;
 
     return {
-        accessToken: createAccessToken(user),
-        // refreshToken: refreshToken(user),
-      };
+      accessToken: createAccessToken(user),
+      // refreshToken: refreshToken(user),
+    };
   }
 
   /* login mutation */
@@ -177,7 +213,7 @@ export class userResolver {
         };
       }
     }
-    const isPassValid = await argon.verify(options.password, user.password);
+    const isPassValid = await argon.verify(user.password, options.password);
 
     if (!isPassValid) {
       return {
